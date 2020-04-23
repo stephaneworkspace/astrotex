@@ -1,0 +1,21 @@
+[package]
+name = "astrotex"
+version = "0.1.0"
+authors = ["Stéphane <s.bressani@bluewin.ch>"]
+edition = "2018"
+#keyword = ["astrology", "swiss ephememeris", "planet", "ephemeris"]
+documentation = "https://github.com/stephaneworkspace/libastro"
+repository = "https://github.com/stephaneworkspace/libastroo"
+description = "Astrology lib connected to the C lib Swiss ephemeris with rexport into c"
+license-file = "LICENSE"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+astrology = "0.1"
+libswe-sys = "0.1"
+serde = { version = "1.0.102", features = ["derive"] }
+serde_json = "1.0.41"
+serde_derive = "1.0.102"
+latex = "0.3.1"
+tectonic = { git = "https://github.com/tectonic-typesetting/tectonic.git", branch = "master" }
