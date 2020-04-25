@@ -46,19 +46,20 @@ fn svg() -> String {
         if r.object_type == DataObjectType::Chart {
             svg_res = r.svg;
         }
-    }
-    if svg_res != "" {
-        svg_res = svg_res.replace("</svg>", "");
-        for r in res {
-            if r.object_type != DataObjectType::Chart {
-                // to do better inside after for real use
-                svg_res = format!("{}<image width=\"{}\" height=\"{}\" x=\"{}\" y=\"{}\" href=\"data:image/svg+xml;base64,{}\"/>", svg_res, r.size_x, r.size_y, r.pos_x, r.pos_y, encode(r.svg.as_str()));
+    } /*
+        if svg_res != "" {
+            svg_res = svg_res.replace("</svg>", "");
+            for r in res {
+                if r.object_type != DataObjectType::Chart {
+                    // to do better inside after for real use
+                    svg_res = format!("{}<image width=\"{}\" height=\"{}\" x=\"{}\" y=\"{}\" href=\"data:image/svg+xml;base64,{}\"/>", svg_res, r.size_x, r.size_y, r.pos_x, r.pos_y, encode(r.svg.as_str()));
+                }
             }
+        } else {
+            svg_res = "<svg>".to_string();
         }
-    } else {
-        svg_res = "<svg>".to_string();
-    }
-    svg_res = format!("{}</svg>", svg_res);
+      svg_res = format!("{}</svg>", svg_res);
+      */
     let n = nsvg::parse_str(&svg_res, nsvg::Units::Pixel, 96.0).unwrap();
     let scale = 2.0;
     let image = n.rasterize(scale).unwrap();
@@ -73,8 +74,8 @@ fn svg() -> String {
     image::save_buffer(
         save_path.clone(),
         &image.into_raw(),
-        500, // width
-        500, // height
+        width,  // width
+        height, // height
         image::ColorType::RGBA(8),
     )
     .expect("Failed to save png.");
