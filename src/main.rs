@@ -2,10 +2,7 @@
 extern crate latex;
 extern crate nsvg;
 extern crate tectonic;
-use astrology::svg_draw::{
-    chart, DataChartNatal, DataObjectSvg, DataObjectType,
-};
-use base64::encode;
+use astrology::svg_draw::{chart, DataChartNatal, DataObjectSvg};
 use latex::{print, Document, DocumentClass, Element, Section};
 use libswe_sys::sweconst::Language;
 use std::ffi::{CStr, CString};
@@ -22,7 +19,7 @@ fn convert_using_into_raw_parts(v: Vec<u8>) -> Vec<u32> {
     unsafe { Vec::from_raw_parts(ptr as *mut u32, len, cap) }
 }
 
-fn svg() -> String {
+fn svg() {
     let path = CString::new(
         "/Users/stephanebressani/Code/Flutter/astro/ios/EphemFiles/",
     )
@@ -41,47 +38,34 @@ fn svg() -> String {
     let path_str: &str = path_c_str.to_str().unwrap();
     let res: Vec<DataObjectSvg> =
         chart(1000.0, d, &path_str, Language::English);
-    let mut svg_res: String = "".to_string();
+    let mut _svg_res: String = "".to_string();
+    let mut i = 0;
     for r in res.clone() {
-        if r.object_type == DataObjectType::Chart {
-            svg_res = r.svg;
-        }
-    } /*
-        if svg_res != "" {
-            svg_res = svg_res.replace("</svg>", "");
-            for r in res {
-                if r.object_type != DataObjectType::Chart {
-                    // to do better inside after for real use
-                    svg_res = format!("{}<image width=\"{}\" height=\"{}\" x=\"{}\" y=\"{}\" href=\"data:image/svg+xml;base64,{}\"/>", svg_res, r.size_x, r.size_y, r.pos_x, r.pos_y, encode(r.svg.as_str()));
-                }
-            }
-        } else {
-            svg_res = "<svg>".to_string();
-        }
-      svg_res = format!("{}</svg>", svg_res);
-      */
-    let n = nsvg::parse_str(&svg_res, nsvg::Units::Pixel, 96.0).unwrap();
-    let scale = 2.0;
-    let image = n.rasterize(scale).unwrap();
-    let (w_r, h_r, raw_rgba) = n.rasterize_to_raw_rgba(2.0).unwrap();
-    let raw_final: Vec<u32> = convert_using_into_raw_parts(raw_rgba);
-    const OUTPUT: &str = "/Users/stephanebressani/Code/Rust/astrotex/chart.png";
+        i = i + 1;
+        _svg_res = r.svg;
+        let n = nsvg::parse_str(&_svg_res, nsvg::Units::Pixel, 96.0).unwrap();
+        let scale = 2.0;
+        let image = n.rasterize(scale).unwrap();
+        let (_w_r, _h_r, raw_rgba) = n.rasterize_to_raw_rgba(2.0).unwrap();
+        let _raw_final: Vec<u32> = convert_using_into_raw_parts(raw_rgba);
+        let save_path = format!(
+            "/Users/stephanebressani/Code/Rust/astrotex/chart_natal{}.png",
+            i
+        );
 
-    let save_path = OUTPUT;
-    let (width, height) = image.clone().dimensions();
+        let (width, height) = image.clone().dimensions();
 
-    // Write the image to disk as a PNG
-    image::save_buffer(
-        save_path.clone(),
-        &image.into_raw(),
-        width,  // width
-        height, // height
-        image::ColorType::RGBA(8),
-    )
-    .expect("Failed to save png.");
-
-    //println!("File exported to: {:?}", image);
-    svg_res
+        // Write the image to disk as a PNG
+        image::save_buffer(
+            save_path.clone(),
+            &image.into_raw(),
+            width,  // width
+            height, // height
+            image::ColorType::RGBA(8),
+        )
+        .expect("Failed to save png.");
+    }
+    // svg_res
 }
 
 fn create_document() -> Document {
@@ -109,7 +93,7 @@ fn create_document() -> Document {
     doc
 }
 fn main() {
-    let svg_str = svg();
+    svg();
     let doc = create_document();
     let rendered = print(&doc).unwrap();
     println!("{}", rendered);
